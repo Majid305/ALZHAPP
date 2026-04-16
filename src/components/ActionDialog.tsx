@@ -98,7 +98,7 @@ export function ActionDialog({
                       onClick={() => onCreateReminder(action)}
                     >
                       <BellPlus className="w-4 h-4" />
-                      Créer un rappel
+                      Créer
                     </Button>
                   </div>
                 ))}

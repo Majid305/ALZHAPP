@@ -48,6 +48,7 @@ export default function App() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [tasks, setTasks] = useState<Reminder[]>([]);
   const [places, setPlaces] = useState<Place[]>([]);
+  const [leisures, setLeisures] = useState<Reminder[]>([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -84,11 +85,17 @@ export default function App() {
       setTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reminder)));
     }, (err) => handleFirestoreError(err, OperationType.LIST, "tasks"));
 
+    const qLeisures = query(collection(db, "leisures"), where("userId", "==", user.uid), orderBy("createdAt", "desc"));
+    const unsubLeisures = onSnapshot(qLeisures, (snapshot) => {
+      setLeisures(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Reminder)));
+    }, (err) => handleFirestoreError(err, OperationType.LIST, "leisures"));
+
     return () => {
       unsubNotes();
       unsubReminders();
       unsubTasks();
       unsubPlaces();
+      unsubLeisures();
     };
   }, [user]);
 
@@ -188,6 +195,20 @@ export default function App() {
           await addDoc(collection(db, "tasks"), newItem);
         }
         toast.success("Tâche(s) ajoutée(s) dans 'Tâches' !");
+      } else if (analysis.category === "leisure") {
+        for (const action of analysis.actions) {
+          const newItem: Reminder = {
+            userId: user.uid,
+            title: action.action,
+            description: action.explanation,
+            dueDate: new Date().toISOString(),
+            priority: action.priority,
+            status: "en_attente",
+            createdAt: new Date().toISOString(),
+          };
+          await addDoc(collection(db, "leisures"), newItem);
+        }
+        toast.success("Loisir ajouté !");
       }
 
       toast.success("Analyse terminée !");
@@ -201,31 +222,62 @@ export default function App() {
   };
 
   const handleCreateReminder = async (action: AlzhAnalysis['actions'][0]) => {
-    if (!user) return;
+    if (!user || !currentAnalysis) return;
 
     try {
-      const newReminder: Reminder = {
+      const category = currentAnalysis.category;
+      let collectionName = "reminders";
+      let successMsg = "Rappel créé !";
+      let dueDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+      if (category === "task") {
+        collectionName = "tasks";
+        successMsg = "Tâche créée !";
+        dueDate = new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
+      } else if (category === "place") {
+        collectionName = "places";
+        successMsg = "Lieu enregistré !";
+        const newPlace: Place = {
+          userId: user.uid,
+          name: action.action,
+          address: "",
+          description: action.explanation,
+          createdAt: new Date().toISOString(),
+        };
+        await addDoc(collection(db, "places"), newPlace);
+        toast.success(successMsg);
+        setIsDialogOpen(false);
+        return;
+      } else if (category === "leisure") {
+        collectionName = "leisures";
+        successMsg = "Loisir ajouté !";
+        dueDate = new Date().toISOString();
+      }
+
+      const newItem: Reminder = {
         userId: user.uid,
         title: action.action,
         description: action.explanation,
-        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        dueDate: dueDate,
         priority: action.priority,
         status: "en_attente",
         createdAt: new Date().toISOString(),
       };
-      await addDoc(collection(db, "reminders"), newReminder);
-      toast.success("Rappel créé !");
+      await addDoc(collection(db, collectionName), newItem);
+      toast.success(successMsg);
       setIsDialogOpen(false);
     } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, "reminders");
+      handleFirestoreError(error, OperationType.CREATE, "creation");
     }
   };
 
   const toggleReminderStatus = async (id: string) => {
-    const reminder = reminders.find(r => r.id === id) || tasks.find(t => t.id === id);
+    const reminder = reminders.find(r => r.id === id) || tasks.find(t => t.id === id) || leisures.find(l => l.id === id);
     if (!reminder) return;
 
-    const collectionName = reminders.find(r => r.id === id) ? "reminders" : "tasks";
+    let collectionName = "reminders";
+    if (tasks.find(t => t.id === id)) collectionName = "tasks";
+    if (leisures.find(l => l.id === id)) collectionName = "leisures";
 
     try {
       await updateDoc(doc(db, collectionName, id), {
@@ -272,6 +324,15 @@ export default function App() {
     }
   };
 
+  const handleDeleteLeisure = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "leisures", id));
+      toast.success("Loisir supprimé.");
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `leisures/${id}`);
+    }
+  };
+
   const handleEditReminder = (reminder: Reminder) => {
     setEditingReminder(reminder);
     setIsEditOpen(true);
@@ -280,7 +341,10 @@ export default function App() {
   const handleSaveEdit = async (id: string, updates: Partial<Reminder>) => {
     // Check which collection it belongs to
     const isReminder = reminders.some(r => r.id === id);
-    const collectionName = isReminder ? "reminders" : "tasks";
+    const isTask = tasks.some(t => t.id === id);
+    let collectionName = "leisures";
+    if (isReminder) collectionName = "reminders";
+    if (isTask) collectionName = "tasks";
 
     try {
       await updateDoc(doc(db, collectionName, id), updates);
@@ -463,7 +527,7 @@ export default function App() {
                   exit={{ opacity: 0, y: -10 }}
                   className="space-y-4"
                 >
-                  <h2 className="text-2xl font-black px-2">Mes Lieux</h2>
+                  <h2 className="text-2xl font-black px-2 text-white drop-shadow-md">Mes Lieux</h2>
                   {places.length === 0 ? (
                     <EmptyState 
                       title="Aucun lieu" 
@@ -473,6 +537,35 @@ export default function App() {
                     places.map((place) => (
                       <div key={place.id}>
                         <PlaceCard place={place} onDelete={handleDeletePlace} />
+                      </div>
+                    ))
+                  )}
+                </motion.div>
+              )}
+
+              {activeTab === "leisure" && (
+                <motion.div
+                  key="leisure"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-4"
+                >
+                  <h2 className="text-2xl font-black px-2 text-white drop-shadow-md">Mes Loisirs</h2>
+                  {leisures.length === 0 ? (
+                    <EmptyState 
+                      title="Rien à signaler" 
+                      description="Suis ici tes nouveautés Facebook, Instagram et tes loisirs." 
+                    />
+                  ) : (
+                    leisures.map((item) => (
+                      <div key={item.id}>
+                        <ReminderItem 
+                          reminder={item} 
+                          onToggleStatus={toggleReminderStatus} 
+                          onDelete={handleDeleteLeisure}
+                          onEdit={handleEditReminder}
+                        />
                       </div>
                     ))
                   )}

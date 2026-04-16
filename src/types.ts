@@ -5,7 +5,7 @@ export interface Note {
   type: "text" | "voice" | "photo" | "video" | "file";
   mediaUrl?: string;
   analysis: AlzhAnalysis;
-  category: "important" | "note" | "task" | "reminder" | "place";
+  category: "important" | "note" | "task" | "reminder" | "place" | "leisure";
   createdAt: string;
 }
 
@@ -32,7 +32,7 @@ export interface Place {
 export interface AlzhAnalysis {
   summary: string;
   keyInfo: string[];
-  category: "important" | "note" | "task" | "reminder" | "place";
+  category: "important" | "note" | "task" | "reminder" | "place" | "leisure";
   actions: {
     action: string;
     when: string;
