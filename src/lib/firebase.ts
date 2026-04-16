@@ -2,11 +2,28 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, orderBy, getDocFromServer } from "firebase/firestore";
 
-import firebaseConfig from "../../firebase-applet-config.json";
+import firebaseConfigData from "../../firebase-applet-config.json";
+
+const cleanConfigString = (val: string | undefined) => {
+  if (!val) return "";
+  // Remove protocol if accidentally included (e.g. https://domain.com -> domain.com)
+  return val.replace(/^https?:\/\//, "").replace(/\/$/, "");
+};
+
+const firebaseConfig = {
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || firebaseConfigData.projectId,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || firebaseConfigData.appId,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || firebaseConfigData.apiKey,
+  authDomain: cleanConfigString(import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || firebaseConfigData.authDomain),
+  storageBucket: cleanConfigString(import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || firebaseConfigData.storageBucket),
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseConfigData.messagingSenderId,
+};
+
+const firestoreDatabaseId = import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || firebaseConfigData.firestoreDatabaseId;
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+export const db = getFirestore(app, firestoreDatabaseId);
 export const googleProvider = new GoogleAuthProvider();
 
 export enum OperationType {

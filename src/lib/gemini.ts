@@ -1,7 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AlzhAnalysis } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const geminiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || "";
+const ai = new GoogleGenAI({ apiKey: geminiKey });
+
+const DEFAULT_MODEL = "gemini-1.5-flash-latest";
 
 const SYSTEM_PROMPT = `Tu es ALZHAPP, un assistant cognitif intelligent pour les personnes ayant des troubles de la mémoire.
 Ton ton est calme, rassurant et simple. Tu parles UNIQUEMENT en français simple.
@@ -49,7 +52,7 @@ export async function analyzeInput(
   mimeType?: string,
   base64Data?: string
 ): Promise<AlzhAnalysis> {
-  const model = "gemini-flash-latest";
+  const model = DEFAULT_MODEL;
   
   const parts: any[] = [];
   
@@ -90,7 +93,7 @@ export async function refineAnalysis(
   previousAnalysis: AlzhAnalysis,
   userInput: string
 ): Promise<AlzhAnalysis> {
-  const model = "gemini-flash-latest";
+  const model = DEFAULT_MODEL;
   
   const prompt = `Voici l'analyse actuelle d'un contenu :
 ${JSON.stringify(previousAnalysis, null, 2)}
