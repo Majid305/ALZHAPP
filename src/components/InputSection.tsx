@@ -49,12 +49,12 @@ export function InputSection({ onProcess, isProcessing }: InputSectionProps) {
   };
 
   return (
-    <Card className="border-2 border-primary/20 shadow-lg bg-card/60 backdrop-blur-md">
+    <Card className="border-2 border-primary/20 shadow-lg glass-card overflow-hidden">
       <CardContent className="p-4 space-y-4">
-        <div className="relative">
+        <div className="relative glass-input p-3 rounded-xl">
           <Textarea
             placeholder="Note quelque chose ici... (ex: 'Rappelle-moi d'acheter du pain')"
-            className="min-h-[120px] text-lg resize-none border-none focus-visible:ring-0 p-0"
+            className="min-h-[120px] text-lg resize-none border-none focus-visible:ring-0 p-0 bg-transparent"
             value={text}
             onChange={(e) => setText(e.target.value)}
             disabled={isProcessing}

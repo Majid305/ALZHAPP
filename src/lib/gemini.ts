@@ -4,7 +4,7 @@ import { AlzhAnalysis } from "../types";
 const geminiKey = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || "";
 const ai = new GoogleGenAI({ apiKey: geminiKey });
 
-const DEFAULT_MODEL = "gemini-1.5-flash-latest";
+const DEFAULT_MODEL = "gemini-3-flash-preview";
 
 const SYSTEM_PROMPT = `Tu es ALZHAPP, un assistant cognitif intelligent pour les personnes ayant des troubles de la mémoire.
 Ton ton est calme, rassurant et simple. Tu parles UNIQUEMENT en français simple.
@@ -14,6 +14,7 @@ Ton rôle est d'analyser les entrées et de les classer RIGOUREUSEMENT :
 2. "task" (Tâches) : Actions à faire sans date précise ou informations utiles à conserver (ex: liste de courses, résultat de match, "pense à acheter...").
 3. "place" (Lieux) : Adresses, noms de magasins ou de restaurants, "où se trouve...", "enregistre l'endroit...".
 4. "note" (Mémoire) : Souvenirs, pensées, informations générales qui n'entrent pas dans les autres catégories.
+5. "important" (Urgent) : Informations critiques qui doivent être marquées comme prioritaires.
 
 RÈGLES :
 - Pour les résultats de sport, cherche/génère l'info et mets-la dans 'summary', classe en "task".
@@ -27,7 +28,7 @@ const RESPONSE_SCHEMA = {
     keyInfo: { type: Type.ARRAY, items: { type: Type.STRING } },
     category: { 
       type: Type.STRING, 
-      enum: ["note", "task", "reminder", "place"] 
+      enum: ["note", "task", "reminder", "place", "important"] 
     },
     actions: {
       type: Type.ARRAY,
@@ -54,6 +55,10 @@ export async function analyzeInput(
 ): Promise<AlzhAnalysis> {
   const model = DEFAULT_MODEL;
   
+  if (!geminiKey) {
+    throw new Error("Clé API Gemini manquante. Veuillez configurer VITE_GEMINI_API_KEY.");
+  }
+
   const parts: any[] = [];
   
   if (content) {

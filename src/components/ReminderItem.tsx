@@ -26,8 +26,8 @@ export function ReminderItem({ reminder, onToggleStatus, onDelete, onEdit }: Rem
   return (
     <div 
       className={cn(
-        "flex items-start gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer backdrop-blur-md",
-        reminder.status === "termine" ? "bg-muted/30 border-transparent opacity-60" : "bg-card/60 border-muted hover:border-primary/30",
+        "flex items-start gap-4 p-4 rounded-xl border-2 transition-all cursor-pointer glass-card",
+        reminder.status === "termine" ? "bg-muted/30 border-transparent opacity-60" : "hover:border-primary/30",
         isOverdue && "border-red-200 bg-red-50/40"
       )}
       onClick={() => reminder.id && onToggleStatus?.(reminder.id)}

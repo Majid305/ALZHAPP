@@ -18,10 +18,10 @@ interface HeaderProps {
 
 export function Header({ user, onLogout, onLogin, theme, onThemeChange }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between p-4 bg-background/80 backdrop-blur-md sticky top-0 z-40 border-b">
-      <div className="flex items-center gap-2">
-        <div className="bg-white p-2 rounded-full shadow-sm border border-primary/10 flex items-center justify-center w-11 h-11">
-          <Key className="w-6 h-6 text-[#FFD700] fill-[#FFD700]" />
+    <header className="flex items-center justify-between p-4 bg-transparent sticky top-0 z-40">
+      <div className="flex items-center gap-3">
+        <div className="bg-zinc-950 p-2.5 rounded-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_8px_16px_-4px_rgba(0,0,0,0.5)] border border-zinc-800 flex items-center justify-center w-12 h-12 transform -rotate-6 group transition-all duration-300">
+          <Key className="w-7 h-7 text-amber-400 fill-amber-500/20 drop-shadow-[0_2px_0_rgba(146,64,14,1)] group-hover:scale-110 transition-transform" strokeWidth={2.5} />
         </div>
         <div>
           <h1 className="text-xl font-black tracking-tight leading-none">ALZHAPP</h1>

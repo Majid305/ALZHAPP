@@ -33,7 +33,7 @@ export function NoteCard({ note, onDelete }: NoteCardProps) {
   const analysis = note.analysis;
 
   return (
-    <Card className="overflow-hidden border-2 hover:border-primary/50 transition-colors bg-card/60 backdrop-blur-md">
+    <Card className="overflow-hidden border-2 hover:border-primary/50 transition-colors glass-card">
       <CardHeader className="pb-2 space-y-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

@@ -17,7 +17,7 @@ export function PlaceCard({ place, onDelete }: PlaceCardProps) {
   };
 
   return (
-    <Card className="border-2 hover:border-primary/30 transition-all overflow-hidden bg-card/60 backdrop-blur-md">
+    <Card className="border-2 hover:border-primary/30 transition-all overflow-hidden glass-card">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <div className="space-y-1">

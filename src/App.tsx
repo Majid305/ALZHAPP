@@ -192,8 +192,9 @@ export default function App() {
 
       toast.success("Analyse terminée !");
     } catch (error) {
-      console.error(error);
-      toast.error("Une erreur est survenue lors de l'analyse.");
+      console.error("Gemini Analysis Error Detail:", error);
+      const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue lors de l'analyse.";
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -312,9 +313,8 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-background flex flex-col max-w-2xl mx-auto border-x shadow-2xl relative pb-32">
-        {/* Background Overlay for better readability on themes */}
-        <div className="fixed inset-0 bg-background/10 pointer-events-none -z-10" />
+      <div className="min-h-screen bg-transparent flex flex-col max-w-2xl mx-auto relative pb-32">
+        {/* Fully transparent layout to let themes shine through */}
         
         <Header 
           user={user} 
