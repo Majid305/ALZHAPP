@@ -1,0 +1,6 @@
+{
+  "name": "ALZHAPP",
+  "description": "Assistant cognitif intelligent pour aider les personnes ayant des troubles de la mémoire à s'organiser et se souvenir de l'essentiel.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": []
+}

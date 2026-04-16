@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "Note": {
+      "title": "Note",
+      "description": "Une note mémorisée par l'utilisateur (texte, voix, photo, etc.)",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID de l'utilisateur propriétaire" },
+        "content": { "type": "string", "description": "Contenu brut ou transcription" },
+        "type": { "type": "string", "enum": ["text", "voice", "photo", "video", "file"], "description": "Type de média" },
+        "mediaUrl": { "type": "string", "description": "URL du média stocké" },
+        "analysis": { "type": "string", "description": "Analyse simplifiée par l'IA (JSON stringified)" },
+        "category": { "type": "string", "enum": ["important", "note", "task", "reminder", "place"], "description": "Catégorie automatique" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Date de création" }
+      },
+      "required": ["userId", "type", "createdAt"]
+    },
+    "Reminder": {
+      "title": "Rappel",
+      "description": "Un rappel pour un événement ou une action",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "dueDate": { "type": "string", "format": "date-time" },
+        "priority": { "type": "string", "enum": ["basse", "moyenne", "haute"] },
+        "status": { "type": "string", "enum": ["en_attente", "termine"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "dueDate", "status"]
+    },
+    "Place": {
+      "title": "Lieu",
+      "description": "Un lieu important à retenir",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name"]
+    }
+  },
+  "firestore": {
+    "/notes/{noteId}": {
+      "schema": "Note",
+      "description": "Collection des notes et analyses"
+    },
+    "/reminders/{reminderId}": {
+      "schema": "Reminder",
+      "description": "Collection des rappels"
+    },
+    "/places/{placeId}": {
+      "schema": "Place",
+      "description": "Collection des lieux importants"
+    }
+  }
+}
