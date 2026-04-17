@@ -26,6 +26,7 @@ export interface Place {
   name: string;
   address?: string;
   description?: string;
+  mapUrl?: string;
   createdAt: string;
 }
 
@@ -40,4 +41,5 @@ export interface AlzhAnalysis {
     explanation: string;
   }[];
   suggestReminder: boolean;
+  mapUrl?: string;
 }

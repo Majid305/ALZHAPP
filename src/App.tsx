@@ -163,6 +163,7 @@ export default function App() {
           name: analysis.summary,
           address: analysis.keyInfo[0] || "",
           description: analysis.keyInfo.join(". "),
+          mapUrl: analysis.mapUrl,
           createdAt: new Date().toISOString(),
         };
         await addDoc(collection(db, "places"), newPlace);
@@ -242,6 +243,7 @@ export default function App() {
           name: action.action,
           address: "",
           description: action.explanation,
+          mapUrl: currentAnalysis.mapUrl,
           createdAt: new Date().toISOString(),
         };
         await addDoc(collection(db, "places"), newPlace);

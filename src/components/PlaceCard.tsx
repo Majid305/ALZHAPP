@@ -11,7 +11,9 @@ interface PlaceCardProps {
 
 export function PlaceCard({ place, onDelete }: PlaceCardProps) {
   const openInMaps = () => {
-    if (place.address) {
+    if (place.mapUrl) {
+      window.open(place.mapUrl, '_blank');
+    } else if (place.address) {
       window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address)}`, '_blank');
     }
   };
@@ -40,9 +42,9 @@ export function PlaceCard({ place, onDelete }: PlaceCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {place.address && (
+        {(place.address || place.mapUrl) && (
           <div className="bg-muted/50 p-3 rounded-xl space-y-2">
-            <p className="text-sm font-medium">{place.address}</p>
+            {place.address && <p className="text-sm font-medium">{place.address}</p>}
             <Button 
               variant="outline" 
               size="sm" 

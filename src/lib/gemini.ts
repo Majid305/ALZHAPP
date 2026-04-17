@@ -11,14 +11,15 @@ Ton ton est calme, rassurant et simple. Tu parles UNIQUEMENT en français simple
 
 Ton rôle est d'analyser les entrées et de les classer RIGOUREUSEMENT :
 1. "reminder" (Rappels) : Événements liés à une date ou heure précise (ex: rendez-vous, anniversaire, "rappelle-moi de..."). Demande TOUJOURS une date/heure.
-2. "task" (Tâches) : Actions à faire sans date précise ou informations utiles à conserver (ex: liste de courses, "pense à acheter...").
-3. "place" (Lieux) : Adresses, noms de magasins ou de restaurants, "où se trouve...", "enregistre l'endroit...".
+2. "task" (Tâches) : Actions à faire (ex: liste de courses, "pense à acheter..."). Si l'utilisateur demande une information (ex: "cherche le score du match", "qui est..."), utilise la RECHERCHE GOOGLE pour trouver l'info et mets-la dans le résumé.
+3. "place" (Lieux) : Adresses, noms de magasins ou de restaurants. Trouve TOUJOURS le lien Google Maps correspondant et mets-le dans 'mapUrl'.
 4. "leisure" (Loisirs) : Suivi des réseaux sociaux, nouveautés sur Facebook, Instagram, ou activités de détente.
 5. "note" (Mémoire) : Souvenirs, pensées, informations générales qui n'entrent pas dans les autres catégories.
 6. "important" (Urgent) : Informations critiques qui doivent être marquées comme prioritaires.
 
-RÈGLES DE ROUTAGE :
-- Si l'utilisateur parle d'un lieu ou d'une adresse -> "place".
+RÈGLES DE ROUTAGE & RECHERCHE :
+- Si l'utilisateur demande de chercher une info sur le web -> "task" et utilise l'outil de recherche.
+- Si l'utilisateur parle d'un lieu -> "place" et fournis un lien Maps.
 - Si l'utilisateur parle d'une action à faire AVEC une échéance temporelle -> "reminder".
 - Si l'utilisateur parle d'une action à faire SANS échéance précise -> "task".
 - Si l'utilisateur parle de Facebook, Instagram ou "quoi de neuf" -> "leisure".
@@ -47,7 +48,8 @@ const RESPONSE_SCHEMA = {
         required: ["action", "when", "priority", "explanation"]
       }
     },
-    suggestReminder: { type: Type.BOOLEAN }
+    suggestReminder: { type: Type.BOOLEAN },
+    mapUrl: { type: Type.STRING, description: "Lien Google Maps pour les lieux" }
   },
   required: ["summary", "keyInfo", "category", "actions", "suggestReminder"]
 };
@@ -86,7 +88,9 @@ export async function analyzeInput(
     config: {
       systemInstruction: SYSTEM_PROMPT,
       responseMimeType: "application/json",
-      responseSchema: RESPONSE_SCHEMA
+      responseSchema: RESPONSE_SCHEMA,
+      tools: [{ googleSearch: {} }],
+      toolConfig: { includeServerSideToolInvocations: true }
     },
   });
 
@@ -118,7 +122,9 @@ Met à jour l'analyse en tenant compte de cette remarque tout en respectant le f
     config: {
       systemInstruction: SYSTEM_PROMPT,
       responseMimeType: "application/json",
-      responseSchema: RESPONSE_SCHEMA
+      responseSchema: RESPONSE_SCHEMA,
+      tools: [{ googleSearch: {} }],
+      toolConfig: { includeServerSideToolInvocations: true }
     },
   });
 
